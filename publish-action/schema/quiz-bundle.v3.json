@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/quizdock/quiz-dock/main/schema/quiz-bundle.v3.json",
+  "$id": "https://raw.githubusercontent.com/quizdock/quizdock/main/schema/quiz-bundle.v3.json",
   "title": "QuizDock quiz bundle manifest (quizdock/quiz), version 3",
   "description": "quiz.json at the root of a QuizDock bundle, next to its media/ folder. Structural rules only; see docs/quiz-bundle.md.",
   "type": "object",

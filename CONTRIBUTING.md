@@ -2,7 +2,7 @@
 
 > Submissions are not open yet. This guide describes how it will work.
 
-You need a GitHub account and [QuizDock](https://github.com/quizdock/quiz-dock). No git, no command line.
+You need a GitHub account and [QuizDock](https://github.com/quizdock/quizdock). No git, no command line.
 
 **Before you start (once)**
 

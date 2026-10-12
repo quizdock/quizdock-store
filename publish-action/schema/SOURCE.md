@@ -1,8 +1,8 @@
 # Bundle schemas
 
 `quiz-bundle.v3.json` is a copy of the JSON Schema QuizDock publishes for its bundle manifest, version 3.
-`theme-bundle.v1.json` is a copy of the one for its theme bundle, version 1, from quizdock/quiz-dock commit `62345e26` (branch `dev`).
+`theme-bundle.v1.json` is a copy of the one for its theme bundle, version 1, from quizdock/quizdock commit `62345e26` (branch `dev`).
 
-- Source: [quizdock/quiz-dock#84](https://github.com/quizdock/quiz-dock/pull/84), commit `866bb97`.
+- Source: [quizdock/quizdock#84](https://github.com/quizdock/quizdock/pull/84), commit `866bb97`.
 - QuizDock defines the format; this store never edits the file.
 - Once a QuizDock release contains the schema, this copy is replaced by the file at that release tag, and a check keeps the two identical.

@@ -1,6 +1,6 @@
 # QuizDock community store
 
-A catalogue of quiz templates and quiz themes for [QuizDock](https://github.com/quizdock/quiz-dock), the self-hosted live quiz. Authors publish their quizzes and themes from their own GitHub repository; any QuizDock instance can browse the catalogue and import a copy.
+A catalogue of quiz templates and quiz themes for [QuizDock](https://github.com/quizdock/quizdock), the self-hosted live quiz. Authors publish their quizzes and themes from their own GitHub repository; any QuizDock instance can browse the catalogue and import a copy.
 
 Submissions are not open yet.
 

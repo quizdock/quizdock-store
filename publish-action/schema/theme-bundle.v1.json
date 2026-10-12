@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/quizdock/quiz-dock/main/schema/theme-bundle.v1.json",
+  "$id": "https://raw.githubusercontent.com/quizdock/quizdock/main/schema/theme-bundle.v1.json",
   "title": "QuizDock theme bundle manifest (quizdock/theme), version 1",
   "description": "theme.json at the root of a QuizDock theme bundle, next to its media/ folder. Its theme is the theme block of a quiz bundle; see docs/quiz-bundle.md.",
   "type": "object",

@@ -10,4 +10,4 @@ Any organisation can run its own copy of this store, closed to the outside: on a
 - **With no forge:** run the CLI over each folder of quiz folders (see [`publish-action/README.md`](publish-action/README.md)). It writes the zips and their `index.json` as static files that any internal web server can serve. `registry.json` is a short file you keep by hand, listing the URL of each `index.json`.
 - **In QuizDock:** replace the whitelist with the internal registry, and list the hosts serving the zips.
 
-The QuizDock side is described in [configuration](https://github.com/quizdock/quiz-dock/blob/main/docs/self-hosting/configuration.md) once the store page ships.
+The QuizDock side is described in [configuration](https://github.com/quizdock/quizdock/blob/main/docs/self-hosting/configuration.md) once the store page ships.

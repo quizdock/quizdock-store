@@ -1,6 +1,6 @@
 # quizdock-store — specification
 
-A community catalogue of quiz templates for [QuizDock](https://github.com/quizdock/quiz-dock).
+A community catalogue of quiz templates for [QuizDock](https://github.com/quizdock/quizdock).
 
 **Status: in preparation.** The registry is empty and submissions are not open yet. The publication tool (CLI and action) and the author template's workflow come next; the end-to-end test with a new GitHub account (see the end of this document) comes before opening.
 
@@ -26,7 +26,7 @@ A community catalogue of quiz templates for [QuizDock](https://github.com/quizdo
 | `quizdock-store` | Registry, registration form, contributor guide, CLI and the action that wraps it |
 | `quizdock-extensions` | GitHub template repository, and the name every author repository should keep (a different name only triggers a warning) |
 
-The format lives in `quiz-dock` ([quizdock/quiz-dock#21](https://github.com/quizdock/quiz-dock/issues/21) for the discussion). `quizdock-store` validates against the bundle JSON Schema QuizDock publishes, one file per manifest version (`schema/quiz-bundle.v3.json`, from [quizdock/quiz-dock#84](https://github.com/quizdock/quiz-dock/pull/84)).
+The format lives in `quiz-dock` ([quizdock/quizdock#21](https://github.com/quizdock/quizdock/issues/21) for the discussion). `quizdock-store` validates against the bundle JSON Schema QuizDock publishes, one file per manifest version (`schema/quiz-bundle.v3.json`, from [quizdock/quizdock#84](https://github.com/quizdock/quizdock/pull/84)).
 
 **Pinning.** The schema reaches QuizDock's `main` branch with its next release. Until then the CLI carries a copy, with the QuizDock commit it comes from; from that release on, it pins the file at the release tag.
 
@@ -42,7 +42,7 @@ Proposal: **`<forge host>/<vendor>/<slug>`**, for example `github.com/alice/worl
 
 - **Every author repository has the same name**, the name of the template (`<vendor>/quizdock-extensions`), as in Homebrew taps. One vendor has one source, so host and vendor are enough to locate it.
 - **Globally unique with no central counter and no list of providers.** Host names are unique, the forge guarantees unique vendors, and the file system guarantees unique slugs within a repository.
-- **The identity only appears in `index.json`.** It is never used as a file name. The contributor never types it. The imported copy in QuizDock carries nothing of it ([quizdock/quiz-dock#39](https://github.com/quizdock/quiz-dock/issues/39)).
+- **The identity only appears in `index.json`.** It is never used as a file name. The contributor never types it. The imported copy in QuizDock carries nothing of it ([quizdock/quizdock#39](https://github.com/quizdock/quizdock/issues/39)).
 - **Known limits:**
   - Renaming an account changes the identity of all its quizzes. That is acceptable, since no imported copy refers to it.
   - The fixed name means one source per account. An organization account can host a second collection.
@@ -85,7 +85,7 @@ Proposal: **`<forge host>/<vendor>/<slug>`**, for example `github.com/alice/worl
 
 ## QuizDock's publication export
 
-[quizdock/quiz-dock#87](https://github.com/quizdock/quiz-dock/pull/87). A dedicated action, separate from the ordinary export, which stays a neutral backup. It prepares exactly what the store expects:
+[quizdock/quizdock#87](https://github.com/quizdock/quizdock/pull/87). A dedicated action, separate from the ordinary export, which stays a neutral backup. It prepares exactly what the store expects:
 
 - **Slug:** prefilled with the quiz's own (or derived from the title), confirmed at every publication export, never frozen. Changing it warns that the store will see a new quiz.
 - **Licence:** blocks unless it is one of the three allowed.
