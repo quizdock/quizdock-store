@@ -8856,9 +8856,95 @@ function referencedMedia(manifest) {
 function questionCount(manifest) {
   return (manifest.items ?? []).filter((item) => item.kind === "question").length;
 }
+var themeSchema = JSON.parse(
+  readFileSync(new URL("../schema/theme-bundle.v1.json", import.meta.url), "utf8")
+);
+var SUPPORTED_THEME_VERSION = 1;
+var FONT_LICENSES = ["OFL-1.1", ...LICENSES];
+var EXPORT_THEME_AGAIN = "then export the theme again from the themes page, unzip it and upload the new folder";
+var validateThemeManifest;
+function themeValidator() {
+  if (!validateThemeManifest) {
+    const ajv = new import__.default({ strict: false, allErrors: true });
+    (0, import_ajv_formats.default)(ajv);
+    validateThemeManifest = ajv.compile(themeSchema);
+  }
+  return validateThemeManifest;
+}
+function themeSlug(theme) {
+  if (theme.slug) return theme.slug;
+  return theme.name.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "theme";
+}
+function validateThemeFiles(files) {
+  const warnings = [];
+  const fail = (...errors2) => ({ ok: false, errors: errors2, warnings });
+  if (!files["theme.json"]) {
+    return fail(
+      `The folder holds no theme.json. Upload the folder you get by unzipping a theme exported from QuizDock's themes page, as it is.`
+    );
+  }
+  let manifest;
+  try {
+    manifest = JSON.parse(new TextDecoder().decode(files["theme.json"]));
+  } catch {
+    return fail(`The theme cannot be read (theme.json is not valid JSON). In QuizDock, ${EXPORT_THEME_AGAIN}.`);
+  }
+  if (typeof manifest?.version === "number" && manifest.version > SUPPORTED_THEME_VERSION) {
+    return fail(
+      `This theme was exported by a newer QuizDock (format version ${manifest.version}) than the store reads yet (up to ${SUPPORTED_THEME_VERSION}). It will be published once the store supports it; nothing to fix on your side.`
+    );
+  }
+  const validate = themeValidator();
+  if (!validate(manifest)) {
+    const first = validate.errors?.[0];
+    return fail(
+      `The theme does not match QuizDock's format (${first?.instancePath || "/"}: ${first?.message ?? "invalid"}). In QuizDock, ${EXPORT_THEME_AGAIN}.`
+    );
+  }
+  const theme = manifest.theme;
+  if (!theme.overrides) {
+    return fail(`This names a theme shipped with QuizDock, which every instance already has: nothing to publish.`);
+  }
+  const errors = [];
+  if (!LICENSES.includes(theme.license)) {
+    errors.push(
+      `The theme needs a licence the store accepts (CC0, CC BY or CC BY-SA): set "license" in theme.json to CC0-1.0, CC-BY-4.0 or CC-BY-SA-4.0.`
+    );
+  }
+  const font = theme.overrides.font;
+  if (font?.file && !FONT_LICENSES.includes(font.license)) {
+    errors.push(
+      `The theme's font needs a licence the store accepts (OFL, CC0, CC BY or CC BY-SA). In QuizDock, import the font again with its licence, ${EXPORT_THEME_AGAIN}.`
+    );
+  }
+  const used = [...referencedMedia(manifest)].sort();
+  const missing = used.filter((path) => !files[path]);
+  if (missing.length) {
+    errors.push(
+      `The folder lacks files the theme uses (${missing.slice(0, 3).join(", ")}${missing.length > 3 ? "\u2026" : ""}). In QuizDock, ${EXPORT_THEME_AGAIN}.`
+    );
+  }
+  if (errors.length) return fail(...errors);
+  const unused = Object.keys(files).filter((p) => p.startsWith("media/") && !used.includes(p));
+  if (unused.length) {
+    warnings.push(
+      `${unused.length} file(s) in media/ are not used by the theme and are left out. You can delete them.`
+    );
+  }
+  const uncredited = used.filter(
+    (path) => path !== font?.file && !manifest.media?.[path]?.credit?.trim()
+  );
+  if (uncredited.length) {
+    warnings.push(
+      `${uncredited.length} picture(s), icon(s) or sound(s) without a credit. You answer for the rights to every file you publish: credit them in your QuizDock media library.`
+    );
+  }
+  const media = Object.fromEntries(used.map((path) => [path, files[path]]));
+  return { ok: true, manifest, media, warnings };
+}
 
 // src/build.mjs
-var TEMPLATE_NAME = "quizdock-quizzes";
+var TEMPLATE_NAME = "quizdock-extensions";
 var ZIP_DATE = new Date(1980, 0, 1, 0, 0, 0);
 function buildIndex(options) {
   const { dir, outDir, baseUrl, maxBytes, host, vendor } = options;
@@ -8876,7 +8962,7 @@ function buildIndex(options) {
       continue;
     }
     const path = `${name}/quiz.json`;
-    const files = readQuizFolder(join(dir, name), maxBytes);
+    const files = readFolder(join(dir, name), "quiz.json", maxBytes);
     if (!files) {
       report.push({
         file: name,
@@ -8929,6 +9015,7 @@ function buildIndex(options) {
     const asset = `${quiz.slug}.quizdock.zip`;
     writeFileSync(join(outDir, asset), zip);
     return {
+      kind: "quiz",
       id: `${host}/${vendor}/${quiz.slug}`,
       slug: quiz.slug,
       url: `${baseUrl.replace(/\/$/, "")}/${asset}`,
@@ -8954,14 +9041,15 @@ function buildIndex(options) {
       issues: options.issues ?? null
     },
     generatedAt: (options.now ?? /* @__PURE__ */ new Date()).toISOString(),
-    quizzes
+    quizzes,
+    themes: options.themesDir ? buildThemes(options, report, outDir) : []
   };
   writeFileSync(join(outDir, "index.json"), `${JSON.stringify(index, null, 2)}
 `);
   return { index, report, notices };
 }
-function buildZip(manifest, media) {
-  const entries = { "quiz.json": [manifest, { mtime: ZIP_DATE }] };
+function buildZip(manifest, media, name = "quiz.json") {
+  const entries = { [name]: [manifest, { mtime: ZIP_DATE }] };
   for (const path of Object.keys(media).sort()) entries[path] = [media[path], { mtime: ZIP_DATE }];
   return zipSync(entries, { level: 6 });
 }
@@ -8984,7 +9072,71 @@ function strayFileMessage(name) {
   }
   return "Only quiz folders belong in quizzes/. Delete this file.";
 }
-function readQuizFolder(folder, maxBytes) {
+function buildThemes(options, report, outDir) {
+  const { themesDir, baseUrl, maxBytes, host, vendor } = options;
+  const folder = themesDir.split(/[\\/]/).filter(Boolean).pop();
+  const valid = [];
+  for (const { name, kind } of listEntries(themesDir)) {
+    const file = `${folder}/${name}`;
+    if (kind === "file") {
+      report.push({ file, path: name, root: folder, errors: [strayThemeMessage(name)], warnings: [] });
+      continue;
+    }
+    const path = `${name}/theme.json`;
+    const files = readFolder(join(themesDir, name), "theme.json", maxBytes);
+    const result = files ? validateThemeFiles(files) : { ok: false, errors: [`The folder weighs more than ${megabytes(maxBytes)}. Lighten the theme's pictures or sounds in QuizDock, then export it again.`], warnings: [] };
+    if (!result.ok) {
+      report.push({ file, path, root: folder, errors: result.errors, warnings: result.warnings });
+      continue;
+    }
+    const zip = buildZip(files["theme.json"], result.media, "theme.json");
+    const entry = { file, path, root: folder, errors: [], warnings: result.warnings };
+    report.push(entry);
+    if (zip.length > maxBytes) {
+      entry.errors.push(`The theme weighs ${megabytes(zip.length)}, over the ${megabytes(maxBytes)} limit. Lighten its pictures or sounds in QuizDock, then export it again.`);
+      continue;
+    }
+    valid.push({ entry, zip, manifest: result.manifest, slug: themeSlug(result.manifest.theme) });
+  }
+  const themes = [];
+  for (const [slug, group] of Map.groupBy(valid, (v) => v.slug)) {
+    if (group.length > 1) {
+      const names = group.map((v) => v.entry.file).join(", ");
+      for (const v of group) {
+        v.entry.errors.push(`Several folders carry the short name "${slug}" (${names}). Delete the older one, or rename one of the themes in QuizDock and export it again.`);
+      }
+      continue;
+    }
+    const { zip, manifest } = group[0];
+    const { theme } = manifest;
+    const asset = `${slug}.quizdock-theme.zip`;
+    writeFileSync(join(outDir, asset), zip);
+    themes.push({
+      kind: "theme",
+      id: `${host}/${vendor}/themes/${slug}`,
+      slug,
+      url: `${baseUrl.replace(/\/$/, "")}/${asset}`,
+      sha256: createHash("sha256").update(zip).digest("hex"),
+      size: zip.length,
+      bundleVersion: manifest.version,
+      name: theme.name.trim(),
+      parent: theme.parent,
+      license: theme.license,
+      accessible: theme.accessibility?.status === "compliant"
+    });
+  }
+  return themes.sort((a, b) => a.slug.localeCompare(b.slug));
+}
+function strayThemeMessage(name) {
+  if (name.toLowerCase().endsWith(".zip")) {
+    return "This is a zip. Unzip it on your computer, upload the folder you get into themes/, then delete this file.";
+  }
+  if (name === "theme.json") {
+    return "The theme files were uploaded one by one. Upload the whole folder instead (the one you get by unzipping the export), then delete these files.";
+  }
+  return "Only theme folders belong in themes/. Delete this file.";
+}
+function readFolder(folder, manifestName, maxBytes) {
   const files = {};
   let total = 0;
   const add = (path, full) => {
@@ -8993,9 +9145,9 @@ function readQuizFolder(folder, maxBytes) {
     files[path] = new Uint8Array(readFileSync2(full));
     return true;
   };
-  const manifest = join(folder, "quiz.json");
+  const manifest = join(folder, manifestName);
   try {
-    if (statSync(manifest).isFile() && !add("quiz.json", manifest)) return null;
+    if (statSync(manifest).isFile() && !add(manifestName, manifest)) return null;
   } catch {
   }
   let media = [];
@@ -9014,7 +9166,8 @@ function reportMarkdown({ index, report, notices }) {
   const lines = ["# Quiz publication", ""];
   for (const notice of notices) lines.push(`> ${notice}`, "");
   const failed = report.filter((r) => r.errors.length);
-  lines.push(`**${index.quizzes.length}** quiz(zes) published, **${failed.length}** not published.`, "");
+  const themes = index.themes?.length ? ` and **${index.themes.length}** theme(s)` : "";
+  lines.push(`**${index.quizzes.length}** quiz(zes)${themes} published, **${failed.length}** not published.`, "");
   for (const r of report) {
     const status = r.errors.length ? "\u274C" : "\u2705";
     lines.push(`## ${status} ${r.file}`);
@@ -9127,6 +9280,7 @@ async function main() {
   const workspace = env.GITHUB_WORKSPACE ?? process.cwd();
   const result = buildIndex({
     dir: join3(workspace, input("directory", "quizzes")),
+    themesDir: join3(workspace, input("themes-directory", "themes")),
     outDir,
     baseUrl: `${server}/${repository}/releases/download/${tag}`,
     maxBytes: maxBytesFrom(input("max-mb", "20")),
@@ -9143,9 +9297,10 @@ async function main() {
   for (const notice of result.notices) console.log(`::notice::${notice}`);
   let failed = false;
   for (const r of result.report) {
-    for (const w of r.warnings) console.log(`::warning file=${dirName}/${r.path}::${w}`);
+    const file = `${r.root ?? dirName}/${r.path}`;
+    for (const w of r.warnings) console.log(`::warning file=${file}::${w}`);
     for (const e of r.errors) {
-      console.log(`::error file=${dirName}/${r.path}::${e}`);
+      console.log(`::error file=${file}::${e}`);
       failed = true;
     }
   }

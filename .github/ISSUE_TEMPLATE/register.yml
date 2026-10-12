@@ -1,5 +1,5 @@
 name: Register my quizzes
-description: Add your quizdock-quizzes repository to the QuizDock community store.
+description: Add your quizdock-extensions repository to the QuizDock community store.
 title: "Register: "
 labels: [registration]
 body:
@@ -8,13 +8,13 @@ body:
       value: |
         Fill this in **once**, after your first quiz has been published (a green check in your repository's *Actions* tab). A maintainer looks at your quizzes, usually within a week. Once accepted, every quiz you publish in that repository appears in the store.
 
-        New here? Start with the [guide](https://github.com/quizdock/quiz-store/blob/main/CONTRIBUTING.md).
+        New here? Start with the [guide](https://github.com/quizdock/quizdock-store/blob/main/CONTRIBUTING.md).
   - type: input
     id: repository
     attributes:
       label: Your repository
-      description: The address of the repository you created from the quizdock-quizzes template.
-      placeholder: https://github.com/your-name/quizdock-quizzes
+      description: The address of the repository you created from the quizdock-extensions template.
+      placeholder: https://github.com/your-name/quizdock-extensions
     validations:
       required: true
   - type: checkboxes

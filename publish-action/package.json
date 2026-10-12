@@ -1,5 +1,5 @@
 {
-  "name": "@quizdock/quiz-store-publish",
+  "name": "@quizdock/quizdock-store-publish",
   "private": true,
   "description": "Validates QuizDock bundles and publishes them with an index: the CLI, and the GitHub Action that wraps it.",
   "type": "module",
@@ -8,7 +8,7 @@
     "node": ">=22"
   },
   "bin": {
-    "quiz-store-publish": "src/cli.mjs"
+    "quizdock-store-publish": "src/cli.mjs"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",

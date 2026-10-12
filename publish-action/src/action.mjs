@@ -6,7 +6,7 @@ import { syncRelease } from './github.mjs';
 import { maxBytesFrom } from './validate.mjs';
 
 /**
- * The GitHub Action: validates the repository's quizzes, publishes the valid
+ * The GitHub Action: validates the repository's quizzes and themes, publishes the valid
  * ones with their index to a rolling release, and fails (a red cross linking
  * to the report) when a quiz could not be published.
  */
@@ -24,6 +24,7 @@ async function main() {
 
   const result = buildIndex({
     dir: join(workspace, input('directory', 'quizzes')),
+    themesDir: join(workspace, input('themes-directory', 'themes')),
     outDir,
     baseUrl: `${server}/${repository}/releases/download/${tag}`,
     maxBytes: maxBytesFrom(input('max-mb', '20')),
@@ -42,9 +43,10 @@ async function main() {
   for (const notice of result.notices) console.log(`::notice::${notice}`);
   let failed = false;
   for (const r of result.report) {
-    for (const w of r.warnings) console.log(`::warning file=${dirName}/${r.path}::${w}`);
+    const file = `${r.root ?? dirName}/${r.path}`;
+    for (const w of r.warnings) console.log(`::warning file=${file}::${w}`);
     for (const e of r.errors) {
-      console.log(`::error file=${dirName}/${r.path}::${e}`);
+      console.log(`::error file=${file}::${e}`);
       failed = true;
     }
   }

@@ -45,7 +45,7 @@ test('uploads what changed, keeps what did not, deletes what is gone, index last
     'added.quizdock.zip': 'added',
     'index.json': '{}',
   });
-  const result = await syncRelease({ token: 't', repository: 'alice/quizdock-quizzes', tag: 'quizzes', dir, fetch: gh.fetch });
+  const result = await syncRelease({ token: 't', repository: 'alice/quizdock-extensions', tag: 'quizzes', dir, fetch: gh.fetch });
   assert.deepEqual(result.kept, ['same.quizdock.zip']);
   assert.deepEqual(result.uploaded, ['added.quizdock.zip', 'changed.quizdock.zip', 'index.json']);
   assert.deepEqual(result.deleted, ['gone.quizdock.zip']);
@@ -55,6 +55,6 @@ test('uploads what changed, keeps what did not, deletes what is gone, index last
 
 test('creates the release on the first run', async () => {
   const gh = fakeGitHub({ release: false });
-  await syncRelease({ token: 't', repository: 'alice/quizdock-quizzes', tag: 'quizzes', dir: folder({ 'index.json': '{}' }), fetch: gh.fetch });
-  assert.ok(gh.calls.includes('POST /repos/alice/quizdock-quizzes/releases'));
+  await syncRelease({ token: 't', repository: 'alice/quizdock-extensions', tag: 'quizzes', dir: folder({ 'index.json': '{}' }), fetch: gh.fetch });
+  assert.ok(gh.calls.includes('POST /repos/alice/quizdock-extensions/releases'));
 });

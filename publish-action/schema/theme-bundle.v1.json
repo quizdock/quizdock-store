@@ -1,0 +1,422 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/quizdock/quiz-dock/main/schema/theme-bundle.v1.json",
+  "title": "QuizDock theme bundle manifest (quizdock/theme), version 1",
+  "description": "theme.json at the root of a QuizDock theme bundle, next to its media/ folder. Its theme is the theme block of a quiz bundle; see docs/quiz-bundle.md.",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "string",
+      "const": "quizdock/theme"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1
+    },
+    "theme": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "builtin": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            }
+          },
+          "required": [
+            "builtin"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "slug": {
+              "type": "string",
+              "maxLength": 60,
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 60
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "license": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 64,
+                  "pattern": "^[A-Za-z0-9.+-]+$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "parent": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "overrides": {
+              "type": "object",
+              "properties": {
+                "background": {
+                  "type": "object",
+                  "properties": {
+                    "color": {
+                      "type": "string",
+                      "pattern": "^#[0-9a-fA-F]{6}$"
+                    },
+                    "textTone": {
+                      "type": "string",
+                      "enum": [
+                        "light",
+                        "dark"
+                      ]
+                    },
+                    "image": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^media\\/[A-Za-z0-9][A-Za-z0-9._-]{0,120}$"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "watermark",
+                        "cover",
+                        "contain",
+                        "pattern"
+                      ]
+                    },
+                    "gradient": {
+                      "type": "object",
+                      "properties": {
+                        "angle": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 360
+                        },
+                        "colors": {
+                          "minItems": 2,
+                          "maxItems": 4,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          }
+                        }
+                      },
+                      "required": [
+                        "angle",
+                        "colors"
+                      ]
+                    },
+                    "size": {
+                      "type": "integer",
+                      "minimum": 5,
+                      "maximum": 100
+                    },
+                    "opacity": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "grayscale": {
+                      "type": "boolean"
+                    },
+                    "blur": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 20
+                    },
+                    "veil": {
+                      "type": "object",
+                      "properties": {
+                        "color": {
+                          "type": "string",
+                          "pattern": "^#[0-9a-fA-F]{6}$"
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 0.9
+                        }
+                      },
+                      "required": [
+                        "color",
+                        "opacity"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "color",
+                    "textTone"
+                  ]
+                },
+                "slots": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string",
+                    "enum": [
+                      "red",
+                      "blue",
+                      "yellow",
+                      "green",
+                      "purple",
+                      "orange",
+                      "pink",
+                      "teal"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                      "color": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "icon": {
+                        "anyOf": [
+                          {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^media\\/[A-Za-z0-9][A-Za-z0-9._-]{0,120}$"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "color",
+                      "icon"
+                    ]
+                  }
+                },
+                "accent": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "font": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "builtin": {
+                          "type": "string",
+                          "enum": [
+                            "system",
+                            "atkinson",
+                            "lexend",
+                            "nunito",
+                            "fredoka",
+                            "inter",
+                            "bitter",
+                            "comic-neue"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "builtin"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "file": {
+                          "type": "string",
+                          "pattern": "^media\\/[A-Za-z0-9][A-Za-z0-9._-]{0,120}$"
+                        },
+                        "license": {
+                          "type": "string",
+                          "enum": [
+                            "OFL-1.1",
+                            "CC0-1.0",
+                            "CC-BY-4.0",
+                            "CC-BY-SA-4.0"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "file",
+                        "license"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "sounds": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string",
+                    "enum": [
+                      "ding",
+                      "tick",
+                      "countdown",
+                      "gong"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "type": "string",
+                    "pattern": "^media\\/[A-Za-z0-9][A-Za-z0-9._-]{0,120}$"
+                  }
+                },
+                "motion": {
+                  "type": "object",
+                  "properties": {
+                    "style": {
+                      "type": "string",
+                      "enum": [
+                        "standard",
+                        "sober",
+                        "dynamic",
+                        "festive"
+                      ]
+                    },
+                    "revealEffect": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "confetti"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "style",
+                    "revealEffect"
+                  ]
+                },
+                "markers": {
+                  "type": "string",
+                  "enum": [
+                    "icons",
+                    "letters",
+                    "numbers"
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "accessibility": {}
+          },
+          "required": [
+            "name",
+            "parent",
+            "overrides"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "media": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^media\\/[A-Za-z0-9][A-Za-z0-9._-]{0,120}$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "alt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "credit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "durationMs": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "peaks": {
+            "minItems": 200,
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "upload",
+              "recording"
+            ]
+          },
+          "loudnessLufs": {
+            "type": "number",
+            "minimum": -70,
+            "maximum": 0
+          },
+          "peakDbfs": {
+            "type": "number",
+            "minimum": -100,
+            "maximum": 6
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "format",
+    "version",
+    "theme"
+  ]
+}

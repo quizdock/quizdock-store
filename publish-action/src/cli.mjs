@@ -6,14 +6,15 @@ import { maxBytesFrom } from './validate.mjs';
 /**
  * The same checks, zips and index as the GitHub Action, as a plain command:
  * for another CI, or a closed store served as a static folder. `--dir` holds
- * one folder per quiz (an unzipped QuizDock export).
+ * one folder per quiz (an unzipped QuizDock export), `--themes-dir` one per theme.
  *
- *   quiz-store-publish --dir quizzes --out public --base-url https://quizzes.acme.local/alice \
+ *   quizdock-store-publish --dir quizzes --out public --base-url https://quizzes.acme.local/alice \
  *     --host forge.acme.local --vendor alice [--max-mb 20]
  */
 const { values } = parseArgs({
   options: {
     dir: { type: 'string', default: 'quizzes' },
+    'themes-dir': { type: 'string', default: 'themes' },
     out: { type: 'string' },
     'base-url': { type: 'string' },
     host: { type: 'string' },
@@ -33,6 +34,7 @@ for (const required of ['out', 'base-url', 'host', 'vendor']) {
 
 const result = buildIndex({
   dir: values.dir,
+  themesDir: values['themes-dir'],
   outDir: values.out,
   baseUrl: values['base-url'],
   maxBytes: maxBytesFrom(values['max-mb']),

@@ -47,3 +47,28 @@ export function writeFolder(parent, name, content = files()) {
     writeFileSync(full, bytes);
   }
 }
+
+/** A theme as QuizDock's themes page exports it. */
+export const themeManifest = (theme = {}, over = {}) => ({
+  format: 'quizdock/theme',
+  version: 1,
+  theme: {
+    slug: 'autumn',
+    name: 'Autumn',
+    license: 'CC-BY-4.0',
+    parent: 'classic',
+    overrides: {
+      accent: '#c2410c',
+      background: { color: '#fff7ed', textTone: 'dark', image: 'media/leaves.webp', mode: 'cover' },
+    },
+    ...theme,
+  },
+  media: { 'media/leaves.webp': { credit: 'Own work' } },
+  ...over,
+});
+
+/** The files of an unzipped theme export. */
+export const themeFiles = (json = themeManifest(), media = { 'media/leaves.webp': new Uint8Array(100) }) => ({
+  'theme.json': strToU8(JSON.stringify(json)),
+  ...media,
+});

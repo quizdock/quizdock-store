@@ -1,12 +1,15 @@
-name: Publish QuizDock quizzes
-description: Validates the QuizDock bundles of a repository and publishes them, with their index, to a rolling release.
+name: Publish QuizDock quizzes and themes
+description: Validates the QuizDock quizzes and themes of a repository and publishes them, with their index, to a rolling release.
 inputs:
   token:
     description: Token allowed to write releases.
     default: ${{ github.token }}
   directory:
-    description: Folder holding the .quizdock.zip files.
+    description: Folder holding the quiz folders.
     default: quizzes
+  themes-directory:
+    description: Folder holding the theme folders.
+    default: themes
   max-mb:
     description: Largest bundle accepted, in MB.
     default: '20'
